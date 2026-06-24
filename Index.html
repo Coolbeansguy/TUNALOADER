@@ -3,62 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download TUNALOADER</title>
+    <title>Tuna Loader - Mod Manager</title>
     <style>
         body {
+            background-color: #141418;
+            color: #e6e6f0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #121214;
-            color: #ffffff;
             margin: 0;
-        }
-        .card {
             text-align: center;
-            background: #1a1a1e;
+        }
+        .container {
+            background-color: #1e1e24;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            border: 1px solid #2a2a30;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 100%;
         }
         h1 {
-            margin-bottom: 10px;
-            font-size: 28px;
+            color: #ffffff;
+            margin-bottom: 5px;
         }
-        p {
-            color: #a0a0a5;
+        .version {
+            color: #8c8ca0;
+            font-size: 0.9rem;
             margin-bottom: 30px;
         }
-        .download-btn {
+        .btn-download {
             display: inline-block;
-            padding: 14px 28px;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #007bff;
+            background-color: #00a550;
+            color: white;
             text-decoration: none;
-            border-radius: 6px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-            transition: transform 0.2s, background-color 0.2s;
+            border-radius: 6px;
+            transition: background 0.2s ease;
         }
-        .download-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .btn-download:hover {
+            background-color: #00c25e;
         }
-        .download-btn:active {
-            transform: translateY(0);
+        .instructions {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #a0a0b0;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>TUNALOADER</h1>
-    <p>Click the button below to start your download.</p>
-    <a href="TUNALOADER.zip" download="TUNALOADER.zip" class="download-btn">Download TUNALOADER.zip</a>
-</div>
+    <div class="container">
+        <h1> Tuna Loader</h1>
+        <div class="version">1.2 Installer</div>
+        
+        <a href="https://raw.githubusercontent.com/USERNAME/REPO/main/TunaLoader.exe" class="btn-download">
+            Download for Windows
+        </a>
+
+        <div class="instructions">
+            <strong>Installation:</strong> Place TunaLoader.exe inside your main game folder alongside FISH.exe and run it!
+        </div>
+    </div>
 
 </body>
 </html>
