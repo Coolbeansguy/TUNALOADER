@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Drawing;
 using System.IO;
@@ -7,13 +7,15 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace TunaLoader
 {
     public partial class Form1 : System.Windows.Forms.Form
     {
-        private string modsFolderPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH_Data", "Managed", "Mods");
-        private string managedFolderPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH_Data", "Managed");
+        private string gameInstallPath = string.Empty;
+        private string modsFolderPath => System.IO.Path.Combine(gameInstallPath, "FISH_Data", "Managed", "Mods");
+        private string managedFolderPath => System.IO.Path.Combine(gameInstallPath, "FISH_Data", "Managed");
         private const string CurrentVersion = "1.2";
 
         private const string VersionUrl = "https://raw.githubusercontent.com/coolbeansguy/TUNALOADER/main/version.txt";
@@ -44,11 +46,31 @@ namespace TunaLoader
         {
             base.OnLoad(e);
 
-            if (!ValidateOfficialGameInstallation())
+            gameInstallPath = FindGameInstallationPath();
+
+            if (string.IsNullOrEmpty(gameInstallPath))
             {
-                System.Windows.Forms.MessageBox.Show("Tuna Loader Security Error:\n\nOfficial game files could not be verified in this folder.\nPlease place TunaLoader.exe inside the main installation folder alongside FISH.exe!", "Validation Failed", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
-                this.Close();
-                return;
+                System.Windows.Forms.MessageBox.Show("FISH could not be located automatically.\nPlease select your game installation folder.", "Select Game Folder", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+
+                using var fbd = new System.Windows.Forms.FolderBrowserDialog { Description = "Select your FISH game installation folder" };
+                if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    if (System.IO.File.Exists(System.IO.Path.Combine(fbd.SelectedPath, "FISH.exe")))
+                    {
+                        gameInstallPath = fbd.SelectedPath;
+                    }
+                    else
+                    {
+                        System.Windows.Forms.MessageBox.Show("The selected folder does not contain FISH.exe. Please try again.", "Invalid Folder", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                        this.Close();
+                        return;
+                    }
+                }
+                else
+                {
+                    this.Close();
+                    return;
+                }
             }
 
             System.IO.Directory.CreateDirectory(modsFolderPath);
@@ -62,9 +84,69 @@ namespace TunaLoader
             this.Padding = new System.Windows.Forms.Padding(22);
 
             BuildUserInterface();
+
+            string backupCleanPath = System.IO.Path.Combine(managedFolderPath, "Assembly-CSharp.dll.vanilla");
+            if (!System.IO.File.Exists(backupCleanPath))
+            {
+                RunPermanentInstallationSilent();
+            }
+
             UpdateInstallationStatus();
 
             _ = CheckForUpdatesAsync();
+        }
+
+        private string FindGameInstallationPath()
+        {
+            if (System.IO.File.Exists(System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH.exe")))
+                return System.AppDomain.CurrentDomain.BaseDirectory;
+
+            foreach (var libraryPath in GetSteamLibraryPaths())
+            {
+                string gamePath = System.IO.Path.Combine(libraryPath, "steamapps", "common", "FISH");
+                if (System.IO.File.Exists(System.IO.Path.Combine(gamePath, "FISH.exe")))
+                    return gamePath;
+            }
+
+            return string.Empty;
+        }
+
+        private System.Collections.Generic.List<string> GetSteamLibraryPaths()
+        {
+            var paths = new System.Collections.Generic.List<string>();
+            try
+            {
+                using var steamKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam")
+                    ?? Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam");
+
+                if (steamKey != null)
+                {
+                    if (steamKey.GetValue("SteamPath") is string steamPath)
+                    {
+                        paths.Add(steamPath);
+
+                        string vdfPath = System.IO.Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
+                        if (System.IO.File.Exists(vdfPath))
+                        {
+                            foreach (var line in System.IO.File.ReadAllLines(vdfPath))
+                            {
+                                if (line.Contains("\"path\""))
+                                {
+                                    var parts = line.Split('"');
+                                    if (parts.Length >= 4)
+                                        paths.Add(parts[3].Replace("\\\\", "\\"));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                paths.Add(@"C:\Program Files (x86)\Steam");
+                paths.Add(@"C:\Program Files\Steam");
+            }
+            catch { }
+
+            return paths;
         }
 
         private void BuildUserInterface()
@@ -183,6 +265,26 @@ namespace TunaLoader
             }
         }
 
+        private void RunPermanentInstallationSilent()
+        {
+            string targetDllPath = System.IO.Path.Combine(managedFolderPath, "Assembly-CSharp.dll");
+            string backupCleanPath = System.IO.Path.Combine(managedFolderPath, "Assembly-CSharp.dll.vanilla");
+
+            try
+            {
+                if (!System.IO.File.Exists(backupCleanPath))
+                {
+                    System.IO.File.Copy(targetDllPath, backupCleanPath, false);
+                }
+
+                ExecuteAssemblyBake(backupCleanPath, targetDllPath);
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Auto-install failed: {ex.Message}\n\nTry clicking 'Install TunaLoader' manually.", "Auto-Install Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+            }
+        }
+
         private void RunPermanentInstallation()
         {
             string targetDllPath = System.IO.Path.Combine(managedFolderPath, "Assembly-CSharp.dll");
@@ -236,7 +338,7 @@ namespace TunaLoader
             var resolver = new Mono.Cecil.DefaultAssemblyResolver();
             resolver.AddSearchDirectory(managedFolderPath);
 
-            string pluginsBase = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH_Data", "Plugins");
+            string pluginsBase = System.IO.Path.Combine(gameInstallPath, "FISH_Data", "Plugins");
             if (System.IO.Directory.Exists(pluginsBase)) resolver.AddSearchDirectory(pluginsBase);
 
             string plugins64 = System.IO.Path.Combine(pluginsBase, "x86_64");
@@ -279,13 +381,6 @@ namespace TunaLoader
 
                 assembly.Write(outputPatchedDll);
             }
-        }
-
-        private bool ValidateOfficialGameInstallation()
-        {
-            string exePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH.exe");
-            string dataFolderPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "FISH_Data");
-            return System.IO.File.Exists(exePath) && System.IO.Directory.Exists(dataFolderPath);
         }
 
         private void MainForm_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
