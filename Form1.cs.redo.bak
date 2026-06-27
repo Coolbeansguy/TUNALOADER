@@ -1,0 +1,14 @@
+// Redo backup of Form1.cs
+// Created before redo injector + runtime logging changes
+namespace TunaLoader
+{
+	public partial class Form1 : Form
+	{
+		public Form1()
+		{
+			InitializeComponent();
+			// call internal loader initialization that sets up UI and mod system
+			OnLoadInternal();
+		}
+	}
+}
