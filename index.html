@@ -1,74 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuna Loader - Mod Manager</title>
-    <style>
-        body {
-            background-color: #141418;
-            color: #e6e6f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .container {
-            background-color: #1e1e24;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 {
-            color: #ffffff;
-            margin-bottom: 5px;
-        }
-        .version {
-            color: #8c8ca0;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-        }
-        .btn-download {
-            display: inline-block;
-            background-color: #00a550;
-            color: white;
-            text-decoration: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 6px;
-            transition: background 0.2s ease;
-        }
-        .btn-download:hover {
-            background-color: #00c25e;
-        }
-        .instructions {
-            margin-top: 25px;
-            font-size: 0.85rem;
-            color: #a0a0b0;
-            line-height: 1.4;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TunaLoader Install</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #000000;
+      --surface:   #0a0a0a;
+      --border:    #222;
+      --accent:    #333;
+      --text:      #fff;
+      --text-dim:  #888;
+      --sidebar-w: 220px;
+    }
+
+    html, body { height: 100%; font-family: sans-serif; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1.65;
+    }
+
+    .page-title {
+      font-size: 42px;
+      font-weight: normal;
+      color: var(--text);
+      padding: 36px 25% 20px;
+    }
+
+    #layout {
+      display: flex;
+      min-height: 100vh;
+      padding: 0 25% 36px;
+    }
+
+    #sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      padding: 28px 0 40px 0;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-item {
+      display: block;
+      font-size: 16px;
+      font-family: sans-serif;
+      color: var(--text);
+      padding: 7px 24px;
+      cursor: pointer;
+      transition: background .15s;
+      border: none;
+      background: none;
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-item:hover { background: var(--accent); }
+
+    .nav-item.active {
+      background: var(--accent);
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    #main {
+      flex: 1;
+      padding: 0 0 0 32px;
+    }
+
+    .content-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 32px 40px;
+    }
+
+    .content-panel > h1 {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .content-panel h2 {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text);
+      margin: 28px 0 8px;
+      text-decoration: underline;
+      text-decoration-color: #444;
+      text-underline-offset: 4px;
+    }
+
+    .content-panel p {
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    code {
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    pre {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 24px;
+      overflow-x: auto;
+    }
+
+    pre code.block {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 15px;
+      color: #ccc;
+      line-height: 1.7;
+    }
+
+    #panel-about h1 { font-weight: normal; }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #444, #2a2a2a);
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 18px;
+      padding: 14px 28px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .btn-download:hover {
+      background: linear-gradient(135deg, #555, #333);
+      border-color: #777;
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      .page-title { padding: 20px 5% 16px; }
+      #layout { padding: 0 5% 36px; }
+    }
+
+    @media (max-width: 600px) {
+      #layout { flex-direction: column; padding: 0; }
+      #sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      #main { padding: 20px 16px; }
+      .content-panel { padding: 20px; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1> Tuna Loader</h1>
-        <div class="version">1.2 Installer</div>
-        
-<a href="https://raw.githubusercontent.com/USERNAME/REPO/main/TunaLoader.zip" class="btn-download">
-    Download Tuna Loader Package
-</a>
+  <div class="page-title">TunaLoader</div>
 
-        <div class="instructions">
-            <strong>Installation:</strong> Place TunaLoader.exe inside your main game folder alongside FISH.exe and run it!
-        </div>
-    </div>
+  <div id="layout">
+
+    <nav id="sidebar">
+      <button class="nav-item active" onclick="navigate(this, 'about')">About</button>
+      <button class="nav-item" onclick="navigate(this, 'learn')">How to make a mod</button>
+      <button class="nav-item" onclick="navigate(this, 'install')">Install</button>
+      <button class="nav-item" onclick="navigate(this, 'community')">Community</button>
+    </nav>
+
+    <main id="main">
+
+      <div class="content-panel" id="panel-about">
+        <h1>About TunaLoader</h1>
+
+        <h2>What is TunaLoader?</h2>
+        <p>TunaLoader is a mod manager, loader, and downloader built to make modding simple. Whether you're installing your first mod or managing dozens at once, TunaLoader handles it all in one place.</p>
+
+        <h2>Manage your mods</h2>
+        <p>Keep track of every mod you have installed. Enable, disable, or remove mods with a click — no digging through game folders required.</p>
+
+        <h2>Download with ease</h2>
+        <p>Browse and download mods directly through TunaLoader. No need to manually move files or worry about where things go — TunaLoader puts everything in the right place automatically.</p>
+
+        <h2>Load mods reliably</h2>
+        <p>TunaLoader injects mods cleanly at launch so they work the way they're meant to. Conflicts are flagged early so you spend less time troubleshooting and more time playing.</p>
+
+        <h2>Free and Open Source</h2>
+        <p>TunaLoader is free to use and open source. You're welcome to contribute, fork, or build on top of it.</p>
+      </div>
+
+      <div class="content-panel" id="panel-learn" style="display:none">
+        <h1>Modding Guide with Tuna Loader</h1>
+        <p>Welcome to the guide for making mods with Tuna Loader. You do not need to know raw IL code or use complex patching tools. You just write normal C# code, build a .dll file, and drop it in.</p>
+        <p>Follow these steps to set up your project and run your first mod.</p>
+
+        <br>
+
+        <h2>Step 1: What you need</h2>
+        <p>Before starting, make sure you have:</p>
+        <p>Visual Studio installed.</p>
+        <p>Tuna Loader Installer run at least once on your game folder.</p>
+        <p>The game files ready.</p>
+
+        <br>
+
+        <h2>Step 2: Create the Project</h2>
+        <p>Open Visual Studio and create a new project.</p>
+        <p>Choose <strong>Class Library (.NET Framework)</strong>.</p>
+        <p><strong>IMPORTANT:</strong> Set the target framework to <strong>.NET Framework 4.7.2</strong> (or whichever version matches).</p>
+        <p>Name your project (for example: MyTunaMod).</p>
+
+        <br>
+
+        <h2>Step 3: Add Game Files</h2>
+        <p>Your project needs to talk to the game files. You must add references to them:</p>
+        <p>Right-click <strong>References</strong> in the Solution Explorer and click <strong>Add Reference...</strong></p>
+        <p>Click <strong>Browse</strong> and go to <code>FISH_Data/Managed/</code> inside your game folder.</p>
+        <p>Select and add these files:</p>
+        <p><code>Assembly-CSharp.dll</code></p>
+        <p><code>UnityEngine.dll</code></p>
+        <p><code>UnityEngine.CoreModule.dll</code></p>
+        <p><code>UnityEngine.InputSystem.dll</code> (if you want to track key presses)</p>
+
+        <br>
+
+        <h2>Step 4: The Code Template</h2>
+        <p>Tuna Loader specifically looks for a class named <code>ModEntry</code> and a method named <code>Load</code>. Do not change these names or the loader will skip your mod.</p>
+        <p>Replace your code with this clean template:</p>
+
+        <br>
+
+        <pre><code class="block">using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class ModEntry
+{
+    public static void Load()
+    {
+        Debug.Log("Mod loaded successfully!");
+        GameObject modRunner = new GameObject("MyModRunner");
+        Object.DontDestroyOnLoad(modRunner);
+        modRunner.AddComponent&lt;MyModLogic&gt;();
+    }
+}
+
+public class MyModLogic : MonoBehaviour
+{
+    private void Update()
+    {
+        if (Keyboard.current != null &amp;&amp; Keyboard.current.digit5Key.wasPressedThisFrame)
+        {
+            PlayerController player = Object.FindAnyObjectByType&lt;PlayerController&gt;();
+            if (player != null)
+            {
+                player.healthPoints = 999;
+            }
+        }
+    }
+}</code></pre>
+      </div>
+
+      <div class="content-panel" id="panel-install" style="display:none">
+        <h1>Install</h1>
+        <br>
+        <a href="https://tunaloader.com/TUNALOADER%201.2%20.zip" class="btn-download">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Download
+        </a>
+      </div>
+
+      <div class="content-panel" id="panel-community" style="display:none">
+        <h1>Community</h1>
+        <p>Join the discord server for mods, updates, news, patch notes, and more! <br><a href="https://discord.gg/76cKNycgWF">https://discord.gg/76cKNycgWF</a></p>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    const panels = {
+      about:     'panel-about',
+      learn:     'panel-learn',
+      install:   'panel-install',
+      community: 'panel-community',
+    };
+
+    function navigate(btn, page) {
+      Object.values(panels).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const target = document.getElementById(panels[page]);
+      if (target) target.style.display = 'block';
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
 
 </body>
 </html>
