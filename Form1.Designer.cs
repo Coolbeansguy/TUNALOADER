@@ -19,7 +19,7 @@ namespace TunaLoader
         private const string CurrentVersion = "1.2";
 
         private const string VersionUrl = "https://raw.githubusercontent.com/coolbeansguy/TUNALOADER/main/version.txt";
-        private const string DownloadUrl = "https://raw.githubusercontent.com/coolbeansguy/TUNALOADER/main/TunaLoader.zip";
+        private const string DownloadUrl = "https://raw.githubusercontent.com/coolbeansguy/TUNALOADER/main/TUNALOADER 1.5.zip";
 
         private System.Windows.Forms.Panel dropZonePanel = null!;
         private System.Windows.Forms.Label dropZoneLabel = null!;
